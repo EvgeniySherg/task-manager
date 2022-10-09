@@ -1,6 +1,8 @@
 package models
 
-import "context"
+import (
+	"context"
+)
 
 type Task struct {
 	Id          int    `json:"Id"`
@@ -14,9 +16,8 @@ type Task struct {
 
 type User struct {
 	Id       int    `json:"id"`
-	Name     string `json:"name" binding:"required"`
-	UserName string `json:"userName" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	Name     string `json:"name"`
+	Password string `json:"password"`
 }
 
 type TaskRepository interface {
@@ -29,6 +30,6 @@ type TaskRepository interface {
 }
 
 type UserRepository interface {
-	SignUp(ctx context.Context)
-	SignIn(ctx context.Context)
+	GetUser(ctx context.Context, username, pass string) (*User, error)
+	CreateUser(c context.Context, user *User) error
 }

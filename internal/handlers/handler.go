@@ -2,18 +2,18 @@ package handlers
 
 import "ToDoList/internal/models"
 
-type TaskHandler struct {
+type taskHandler struct {
 	repository models.TaskRepository
 }
 
-func NewHandler(rep models.TaskRepository) TaskHandler {
-	return TaskHandler{repository: rep}
+func NewTaskHandler(rep models.TaskRepository) *taskHandler {
+	return &taskHandler{repository: rep}
 }
 
-type UserHandler struct {
+type userHandler struct {
 	repository models.UserRepository
 }
 
-func NewUserHandler(rep models.UserRepository) UserHandler {
-	return UserHandler{repository: rep}
+func NewUserHandler(rep models.UserRepository) *userHandler {
+	return &userHandler{repository: rep}
 }

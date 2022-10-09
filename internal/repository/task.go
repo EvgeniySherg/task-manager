@@ -10,24 +10,24 @@ import (
 	"time"
 )
 
-type database struct {
-	DB *sql.DB
+type taskDatabase struct {
+	db *sql.DB
 }
 
 func NewRepository(db *sql.DB) models.TaskRepository {
-	return &database{
-		DB: db,
+	return &taskDatabase{
+		db: db,
 	}
 }
 
 var ErrTaskNotFound = errors.New("task not found")
 var ErrTaskNotCreated = errors.New("task not created")
 
-func (db *database) GetById(ctx context.Context, id int) (*models.Task, error) {
+func (db *taskDatabase) GetById(ctx context.Context, id int) (*models.Task, error) {
 	var task models.Task
-	query := fmt.Sprint("SELECT task_name, task_description, status, created_at, update_at FROM task WHERE id=$1 ")
+	query := fmt.Sprint("SELECT name, description, status, created_at, update_at FROM task WHERE id=$1 ")
 
-	err := db.DB.QueryRowContext(ctx, query, id).Scan(&task.Name, &task.Description, &task.Status, &task.Date, &task.LastUpdate)
+	err := db.db.QueryRowContext(ctx, query, id).Scan(&task.Name, &task.Description, &task.Status, &task.Date, &task.LastUpdate)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, ErrTaskNotFound
@@ -37,12 +37,12 @@ func (db *database) GetById(ctx context.Context, id int) (*models.Task, error) {
 	return &task, nil
 }
 
-func (db *database) GetAllTask(ctx context.Context, userId int) ([]*models.Task, error) {
+func (db *taskDatabase) GetAllTask(ctx context.Context, userId int) ([]*models.Task, error) {
 	tasks := make([]*models.Task, 0)
 
-	query := "SELECT task_name, task_description, status, created_at, update_at FROM task WHERE owner_id=$1"
+	query := "SELECT name, description, status, created_at, update_at FROM task WHERE owner_id=$1"
 
-	rows, err := db.DB.QueryContext(ctx, query, userId)
+	rows, err := db.db.QueryContext(ctx, query, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +62,7 @@ func (db *database) GetAllTask(ctx context.Context, userId int) ([]*models.Task,
 	return tasks, nil
 }
 
-func (db *database) GetTaskFilterByDate(ctx context.Context, date string) ([]*models.Task, error) {
+func (db *taskDatabase) GetTaskFilterByDate(ctx context.Context, date string) ([]*models.Task, error) {
 	tasks := make([]*models.Task, 0)
 
 	t, err := time.Parse("2006-01-02", date)
@@ -70,9 +70,9 @@ func (db *database) GetTaskFilterByDate(ctx context.Context, date string) ([]*mo
 		return nil, err
 	}
 
-	query := "SELECT task_name, task_description, status, created_at, update_at FROM task WHERE created_at > $1"
+	query := "SELECT name, description, status, created_at, update_at FROM task WHERE created_at > $1"
 
-	rows, err := db.DB.QueryContext(ctx, query, t)
+	rows, err := db.db.QueryContext(ctx, query, t)
 	if err != nil {
 		return nil, err
 	}
@@ -92,13 +92,13 @@ func (db *database) GetTaskFilterByDate(ctx context.Context, date string) ([]*mo
 	return tasks, nil
 }
 
-func (db *database) CreateTask(ctx context.Context, task *models.Task) error {
+func (db *taskDatabase) CreateTask(ctx context.Context, task *models.Task) error {
 
-	query := fmt.Sprint("INSERT INTO task (task_name, task_description, status, owner_id) VALUES ($1, $2, $3, $4)  RETURNING id, task_name")
+	query := fmt.Sprint("INSERT INTO task (name, description, status, owner_id) VALUES ($1, $2, $3, $4)  RETURNING id, task_name")
 
 	var createdTask models.Task
 
-	err := db.DB.QueryRowContext(ctx, query, task.Name, task.Description, task.Status, task.OwnerID).Scan(&createdTask.Id, &createdTask.Name)
+	err := db.db.QueryRowContext(ctx, query, task.Name, task.Description, task.Status, task.OwnerID).Scan(&createdTask.Id, &createdTask.Name)
 
 	switch {
 	case err == sql.ErrNoRows:
@@ -111,12 +111,12 @@ func (db *database) CreateTask(ctx context.Context, task *models.Task) error {
 	return nil
 }
 
-func (db *database) UpdateTask(ctx context.Context, task *models.Task) error {
+func (db *taskDatabase) UpdateTask(ctx context.Context, task *models.Task) error {
 	changeTime := time.Now()
 
-	query := fmt.Sprint("UPDATE task SET task_name = $1, task_description = $2, status = $3, update_at = $4 WHERE id = $5;")
+	query := fmt.Sprint("UPDATE task SET name = $1, description = $2, status = $3, update_at = $4 WHERE id = $5;")
 
-	res, err := db.DB.ExecContext(ctx, query, task.Name, task.Description, task.Status, changeTime, task.Id)
+	res, err := db.db.ExecContext(ctx, query, task.Name, task.Description, task.Status, changeTime, task.Id)
 	if err != nil {
 		return fmt.Errorf("exec err -> %v", err)
 	}
@@ -127,10 +127,10 @@ func (db *database) UpdateTask(ctx context.Context, task *models.Task) error {
 	return nil
 }
 
-func (db *database) DeleteTask(ctx context.Context, id int) error {
+func (db *taskDatabase) DeleteTask(ctx context.Context, id int) error {
 	query := fmt.Sprint(`DELETE FROM task WHERE id = $1`)
 
-	res, err := db.DB.ExecContext(ctx, query, id)
+	res, err := db.db.ExecContext(ctx, query, id)
 
 	if err != nil {
 		return fmt.Errorf("exec err -> %v", err)

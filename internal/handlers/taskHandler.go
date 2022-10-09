@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-func (th *TaskHandler) GetTaskById(c echo.Context) error {
+func (th *taskHandler) GetTaskById(c echo.Context) error {
 	ID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		logrus.Printf("cannot strconv.Atoi: %v", err)
@@ -25,7 +25,7 @@ func (th *TaskHandler) GetTaskById(c echo.Context) error {
 	return c.JSON(http.StatusOK, json.NewEncoder(c.Response()).Encode(task))
 }
 
-func (th *TaskHandler) GetAllTasksByUserId(c echo.Context) error {
+func (th *taskHandler) GetAllTasksByUserId(c echo.Context) error {
 	userID, err := strconv.Atoi(c.Param("id"))
 
 	if err != nil {
@@ -42,7 +42,7 @@ func (th *TaskHandler) GetAllTasksByUserId(c echo.Context) error {
 	return c.JSON(http.StatusOK, json.NewEncoder(c.Response()).Encode(tasks))
 }
 
-func (th *TaskHandler) GetTasksFilterByDate(c echo.Context) error {
+func (th *taskHandler) GetTasksFilterByDate(c echo.Context) error {
 	date := c.Param("date")
 
 	tasks, err := th.repository.GetTaskFilterByDate(c.Request().Context(), date)
@@ -54,7 +54,7 @@ func (th *TaskHandler) GetTasksFilterByDate(c echo.Context) error {
 	return c.JSON(http.StatusOK, json.NewEncoder(c.Response()).Encode(tasks))
 }
 
-func (th *TaskHandler) CreateTask(c echo.Context) error {
+func (th *taskHandler) CreateTask(c echo.Context) error {
 
 	var newTask models.Task
 
@@ -73,7 +73,7 @@ func (th *TaskHandler) CreateTask(c echo.Context) error {
 	return c.JSON(http.StatusCreated, "task create successfully")
 }
 
-func (th *TaskHandler) UpdateTask(c echo.Context) error {
+func (th *taskHandler) UpdateTask(c echo.Context) error {
 	var updateTask models.Task
 
 	err := json.NewDecoder(c.Request().Body).Decode(&updateTask)
@@ -91,7 +91,7 @@ func (th *TaskHandler) UpdateTask(c echo.Context) error {
 	return c.JSON(http.StatusCreated, "task update successfully")
 }
 
-func (th *TaskHandler) DeleteTask(c echo.Context) error {
+func (th *taskHandler) DeleteTask(c echo.Context) error {
 	deleteID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		logrus.Printf("cannot strconv.Atoi: %v", err)

@@ -1,3 +1,3 @@
-DROP TABLE "user";
+DROP TABLE users;
 
 DROP TABLE "task";

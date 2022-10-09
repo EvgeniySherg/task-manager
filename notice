@@ -1,6 +1,5 @@
 CREATE TABLE "user" (
                         "User_id" bigserial PRIMARY KEY,
-                        "name" varchar NOT NULL, 
                         "user_name" varchar NOT NULL,
                         "user_pass" varchar NOT NULL
 );
