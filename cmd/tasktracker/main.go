@@ -9,7 +9,7 @@ import (
 	"database/sql"
 	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
-	"log"
+	"github.com/sirupsen/logrus"
 	"net/http"
 	"os"
 	"os/signal"
@@ -28,11 +28,17 @@ func initHandlers(app *echo.Echo, db *sql.DB) {
 }
 
 func main() {
+	logrus.SetFormatter(new(logrus.JSONFormatter))
+	
+	if err := config.InitConfigFile(); err != nil {
+		logrus.Fatalf("failed init config: %v", err)
+	}
+
 	cnf := config.InitConfig()
 
 	db, err := postgres.InitDB(&cnf.DBPostgres)
 	if err != nil {
-		log.Fatalf("failed init config: %v", err)
+		logrus.Fatalf("failed init config: %v", err)
 	}
 
 	app := echo.New()
@@ -48,7 +54,7 @@ func main() {
 
 	go func() {
 		if err := app.StartServer(httpServer); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("failed start http server")
+			logrus.Fatalf("failed start http server -> %v", err)
 		}
 	}()
 
@@ -57,13 +63,13 @@ func main() {
 	<-quit
 
 	if err = db.Close(); err != nil {
-		log.Printf("db close failed: %v", err)
+		logrus.Printf("db close failed: %v", err)
 	}
 
 	shutdownCtx, forceShutdown := context.WithTimeout(context.Background(), 10*time.Second)
 	defer forceShutdown()
 
 	if err = httpServer.Shutdown(shutdownCtx); err != nil {
-		log.Fatalf("shutdown http server err: %v", err)
+		logrus.Fatalf("shutdown http server err: %v", err)
 	}
 }

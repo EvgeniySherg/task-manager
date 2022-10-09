@@ -9,3 +9,11 @@ type TaskHandler struct {
 func NewHandler(rep models.TaskRepository) TaskHandler {
 	return TaskHandler{repository: rep}
 }
+
+type UserHandler struct {
+	repository models.UserRepository
+}
+
+func NewUserHandler(rep models.UserRepository) UserHandler {
+	return UserHandler{repository: rep}
+}

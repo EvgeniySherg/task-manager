@@ -9,13 +9,14 @@ type Task struct {
 	Date        string `json:"date"`
 	Status      string `json:"status"`
 	LastUpdate  string `json:"lastUpdate"`
-	User        User   `json:"user"`
+	OwnerID     int    `json:"owner_id"`
 }
 
 type User struct {
 	Id       int    `json:"id"`
-	Name     string `json:"name"`
-	Password string `json:"password"`
+	Name     string `json:"name" binding:"required"`
+	UserName string `json:"userName" binding:"required"`
+	Password string `json:"password" binding:"required"`
 }
 
 type TaskRepository interface {
@@ -25,4 +26,9 @@ type TaskRepository interface {
 	CreateTask(ctx context.Context, task *Task) error
 	UpdateTask(ctx context.Context, task *Task) error
 	DeleteTask(ctx context.Context, id int) error
+}
+
+type UserRepository interface {
+	SignUp(ctx context.Context)
+	SignIn(ctx context.Context)
 }

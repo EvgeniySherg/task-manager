@@ -1,6 +1,5 @@
 CREATE TABLE "user" (
                         "User_id" bigserial PRIMARY KEY,
-                        "name" varchar NOT NULL, 
                         "user_name" varchar NOT NULL,
                         "user_pass" varchar NOT NULL
 );
@@ -15,12 +14,3 @@ CREATE TABLE "task" (
                         "update_at" date NOT NULL DEFAULT (now()),
                         "owner_id" bigint NOT NULL REFERENCES "user" ("User_id") ON DELETE CASCADE
 );
-
-docker run --name postgres -p 5432:5432 -e POSTGRES_PASSWORD=admin -e DB_NAME=task -d postgres
-sudo docker run --name postgres -p 5431:5431 -e POSTGRES_PASSWORD=admin -e DB_NAME=semiApi -d postgres
-
-
-1. архитектура, структура и бд
-2. реализация аутентификации
-3. что в данном коде можно тестипть ? работу хендлеров через мок?
-4.

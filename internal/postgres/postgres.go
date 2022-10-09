@@ -3,7 +3,7 @@ package postgres
 import (
 	"database/sql"
 	"fmt"
-	"log"
+	"github.com/sirupsen/logrus"
 )
 
 type PostgresConfig struct {
@@ -24,9 +24,9 @@ func InitDB(cnf *PostgresConfig) (*sql.DB, error) {
 	}
 	err = db.Ping()
 	if err != nil {
-		log.Printf("connection to database not created")
+		logrus.Printf("connection to database not created")
 		return nil, err
 	}
-	log.Printf("connection to database create successfully")
+	logrus.Printf("connection to database create successfully")
 	return db, nil
 }

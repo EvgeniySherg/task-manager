@@ -6,7 +6,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
+	"github.com/sirupsen/logrus"
 	"time"
 )
 
@@ -69,7 +69,7 @@ func (db *database) GetTaskFilterByDate(ctx context.Context, date string) ([]*mo
 	if err != nil {
 		return nil, err
 	}
-	log.Println(t)
+
 	query := "SELECT task_name, task_description, status, created_at, update_at FROM task WHERE created_at > $1"
 
 	rows, err := db.DB.QueryContext(ctx, query, t)
@@ -98,7 +98,7 @@ func (db *database) CreateTask(ctx context.Context, task *models.Task) error {
 
 	var createdTask models.Task
 
-	err := db.DB.QueryRowContext(ctx, query, task.Name, task.Description, task.Status, task.User.Id).Scan(&createdTask.Id, &createdTask.Name)
+	err := db.DB.QueryRowContext(ctx, query, task.Name, task.Description, task.Status, task.OwnerID).Scan(&createdTask.Id, &createdTask.Name)
 
 	switch {
 	case err == sql.ErrNoRows:
@@ -106,7 +106,7 @@ func (db *database) CreateTask(ctx context.Context, task *models.Task) error {
 	case err != nil:
 		return fmt.Errorf("create book err -> %v", err)
 	default:
-		log.Printf("task with id - %v  created,  title - %s\n", createdTask.Id, createdTask.Name)
+		logrus.Printf("task with id - %v  created,  title - %s\n", createdTask.Id, createdTask.Name)
 	}
 	return nil
 }
@@ -115,7 +115,7 @@ func (db *database) UpdateTask(ctx context.Context, task *models.Task) error {
 	changeTime := time.Now()
 
 	query := fmt.Sprint("UPDATE task SET task_name = $1, task_description = $2, status = $3, update_at = $4 WHERE id = $5;")
-	log.Println(task.Id)
+
 	res, err := db.DB.ExecContext(ctx, query, task.Name, task.Description, task.Status, changeTime, task.Id)
 	if err != nil {
 		return fmt.Errorf("exec err -> %v", err)
@@ -131,7 +131,7 @@ func (db *database) DeleteTask(ctx context.Context, id int) error {
 	query := fmt.Sprint(`DELETE FROM task WHERE id = $1`)
 
 	res, err := db.DB.ExecContext(ctx, query, id)
-	log.Println(id)
+
 	if err != nil {
 		return fmt.Errorf("exec err -> %v", err)
 	}
