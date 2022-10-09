@@ -3,19 +3,19 @@ package models
 import "context"
 
 type Task struct {
-	TaskId      int    `json:"taskId"`
+	Id          int    `json:"Id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Date        string `json:"date"`
 	Status      string `json:"status"`
 	LastUpdate  string `json:"lastUpdate"`
-	TaskUser    User   `json:"taskUser"`
+	User        User   `json:"user"`
 }
 
 type User struct {
-	UserId       int    `json:"userId"`
-	UserName     string `json:"userName"`
-	UserPassword string `json:"userPassword"`
+	Id       int    `json:"id"`
+	Name     string `json:"name"`
+	Password string `json:"password"`
 }
 
 type TaskRepository interface {

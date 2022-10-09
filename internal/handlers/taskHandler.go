@@ -55,7 +55,8 @@ func (th *TaskHandler) GetTasksFilterByDate(c echo.Context) error {
 }
 
 func (th *TaskHandler) CreateTask(c echo.Context) error {
-	newTask := &models.Task{}
+
+	var newTask models.Task
 
 	err := json.NewDecoder(c.Request().Body).Decode(&newTask)
 	if err != nil {
@@ -63,7 +64,7 @@ func (th *TaskHandler) CreateTask(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "incorrect task data")
 	}
 
-	err = th.repository.CreateTask(c.Request().Context(), newTask)
+	err = th.repository.CreateTask(c.Request().Context(), &newTask)
 	if err != nil {
 		log.Printf("error while create new task %v", err)
 		return c.JSON(http.StatusBadRequest, err.Error())
@@ -75,7 +76,7 @@ func (th *TaskHandler) CreateTask(c echo.Context) error {
 func (th *TaskHandler) UpdateTask(c echo.Context) error {
 	var updateTask models.Task
 
-	err := json.NewDecoder(c.Request().Body).Decode(updateTask)
+	err := json.NewDecoder(c.Request().Body).Decode(&updateTask)
 	if err != nil {
 		log.Println("entered incorrect data for updating task")
 		return c.String(http.StatusBadRequest, "incorrect task data")
@@ -87,7 +88,7 @@ func (th *TaskHandler) UpdateTask(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	return c.JSON(http.StatusCreated, "task create successfully")
+	return c.JSON(http.StatusCreated, "task update successfully")
 }
 
 func (th *TaskHandler) DeleteTask(c echo.Context) error {
@@ -103,5 +104,5 @@ func (th *TaskHandler) DeleteTask(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "database error, incorrect id")
 	}
 
-	return c.JSON(http.StatusOK, "book delete")
+	return c.JSON(http.StatusOK, "task delete")
 }

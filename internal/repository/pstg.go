@@ -65,12 +65,12 @@ func (db *database) GetAllTask(ctx context.Context, userId int) ([]*models.Task,
 func (db *database) GetTaskFilterByDate(ctx context.Context, date string) ([]*models.Task, error) {
 	tasks := make([]*models.Task, 0)
 
-	t, err := time.Parse("02.01.2006", date)
+	t, err := time.Parse("2006-01-02", date)
 	if err != nil {
 		return nil, err
 	}
-
-	query := "SELECT task_name, task_description, status, created_at, update_at FROM task WHERE created_at <$1"
+	log.Println(t)
+	query := "SELECT task_name, task_description, status, created_at, update_at FROM task WHERE created_at > $1"
 
 	rows, err := db.DB.QueryContext(ctx, query, t)
 	if err != nil {
@@ -93,17 +93,20 @@ func (db *database) GetTaskFilterByDate(ctx context.Context, date string) ([]*mo
 }
 
 func (db *database) CreateTask(ctx context.Context, task *models.Task) error {
-	var newTask *models.Task
-	query := fmt.Sprint("INSERT INTO task (task_name, task_description, status, owner_id) VALUES ($1, $2, $3, $4)")
 
-	err := db.DB.QueryRowContext(ctx, query, task.Name, task.Description, task.Status, task.TaskUser.UserId).Scan(newTask.TaskId, newTask.Name)
+	query := fmt.Sprint("INSERT INTO task (task_name, task_description, status, owner_id) VALUES ($1, $2, $3, $4)  RETURNING id, task_name")
+
+	var createdTask models.Task
+
+	err := db.DB.QueryRowContext(ctx, query, task.Name, task.Description, task.Status, task.User.Id).Scan(&createdTask.Id, &createdTask.Name)
+
 	switch {
 	case err == sql.ErrNoRows:
 		return ErrTaskNotCreated
 	case err != nil:
 		return fmt.Errorf("create book err -> %v", err)
 	default:
-		log.Printf("task  %s created with id %v\n", newTask.Name, newTask.TaskId)
+		log.Printf("task with id - %v  created,  title - %s\n", createdTask.Id, createdTask.Name)
 	}
 	return nil
 }
@@ -111,24 +114,24 @@ func (db *database) CreateTask(ctx context.Context, task *models.Task) error {
 func (db *database) UpdateTask(ctx context.Context, task *models.Task) error {
 	changeTime := time.Now()
 
-	query := fmt.Sprint("UPDATE task SET task_name=$1, task_description=$2, status=$3, update_at=$4")
-
-	res, err := db.DB.ExecContext(ctx, query, task.Name, task.Description, task.Status, changeTime)
+	query := fmt.Sprint("UPDATE task SET task_name = $1, task_description = $2, status = $3, update_at = $4 WHERE id = $5;")
+	log.Println(task.Id)
+	res, err := db.DB.ExecContext(ctx, query, task.Name, task.Description, task.Status, changeTime, task.Id)
 	if err != nil {
 		return fmt.Errorf("exec err -> %v", err)
 	}
 	affected, _ := res.RowsAffected()
 	if affected == 0 {
-
-		return errors.New(fmt.Sprintf("task not updated: %v", task.Name))
+		return errors.New(fmt.Sprintf("-> task %v not updated. No rows change ", task.Name))
 	}
 	return nil
 }
 
 func (db *database) DeleteTask(ctx context.Context, id int) error {
-	query := fmt.Sprint("DELETE * FROM task WHERE id=$1")
+	query := fmt.Sprint(`DELETE FROM task WHERE id = $1`)
 
 	res, err := db.DB.ExecContext(ctx, query, id)
+	log.Println(id)
 	if err != nil {
 		return fmt.Errorf("exec err -> %v", err)
 	}
