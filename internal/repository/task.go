@@ -94,7 +94,7 @@ func (db *taskDatabase) GetTaskFilterByDate(ctx context.Context, date string) ([
 
 func (db *taskDatabase) CreateTask(ctx context.Context, task *models.Task) error {
 
-	query := fmt.Sprint("INSERT INTO task (name, description, status, owner_id) VALUES ($1, $2, $3, $4)  RETURNING id, task_name")
+	query := fmt.Sprint("INSERT INTO task (name, description, status, owner_id) VALUES ($1, $2, $3, $4)  RETURNING id, name")
 
 	var createdTask models.Task
 

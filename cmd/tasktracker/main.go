@@ -17,19 +17,23 @@ import (
 )
 
 func initHandlers(app *echo.Echo, db *sql.DB) {
+	userRep := repository.NewUserRepository(db)
+	userHandl := handlers.NewUserHandler(userRep)
+
+	app.POST("/auth/sign-up", userHandl.SignUp)
+	app.POST("/auth/sign-in", userHandl.SignIn)
+
 	taskRep := repository.NewRepository(db)
 	taskHandl := handlers.NewTaskHandler(taskRep)
-	app.GET("/task/:id", taskHandl.GetTaskById)
+
+	app.GET("/task/:id", taskHandl.GetTaskById, userHandl.UserIdentity) //TODO допилить рест
 	app.GET("/tasks/:date", taskHandl.GetTasksFilterByDate)
 	app.GET("/tasksByUser/:id", taskHandl.GetAllTasksByUserId)
 	app.POST("/taskCreate", taskHandl.CreateTask)
 	app.PUT("/taskUpdate", taskHandl.UpdateTask)
 	app.DELETE("/taskDelete/:id", taskHandl.DeleteTask)
 
-	userRep := repository.NewUserRepository(db)
-	userHandl := handlers.NewUserHandler(userRep)
-	app.POST("/auth/sign-up", userHandl.SignUp)
-	app.POST("/auth/sign-in", userHandl.SignIn)
+	app.GET("/task/:id", taskHandl.GetTaskById, userHandl.UserIdentity)
 }
 
 func main() {

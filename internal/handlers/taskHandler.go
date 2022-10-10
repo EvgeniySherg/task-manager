@@ -3,6 +3,7 @@ package handlers
 import (
 	"ToDoList/internal/models"
 	"encoding/json"
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
@@ -10,6 +11,8 @@ import (
 )
 
 func (th *taskHandler) GetTaskById(c echo.Context) error {
+	get := c.Get(userId)
+	fmt.Println(get)
 	ID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		logrus.Printf("cannot strconv.Atoi: %v", err)

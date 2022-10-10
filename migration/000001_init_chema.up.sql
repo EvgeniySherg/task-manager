@@ -1,7 +1,7 @@
-CREATE TABLE "user" (
-                        "id" bigserial PRIMARY KEY,
-                        "name" varchar NOT NULL,
-                        "pass" varchar NOT NULL
+CREATE TABLE "users" (
+                         "id" bigserial PRIMARY KEY,
+                         "name" varchar NOT NULL,
+                         "pass" varchar NOT NULL
 );
 
 
@@ -12,5 +12,5 @@ CREATE TABLE "task" (
                         "status" varchar,
                         "created_at" date NOT NULL DEFAULT (now()),
                         "update_at" date NOT NULL DEFAULT (now()),
-                        "owner_id" bigint NOT NULL REFERENCES users ("User_id") ON DELETE CASCADE
+                        "owner_id" bigint NOT NULL REFERENCES users ("id") ON DELETE CASCADE
 );
