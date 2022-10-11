@@ -1,11 +1,18 @@
 # Build stage
-FROM golang:1.19
+FROM golang:1.19-alpine3.16 AS builder
+WORKDIR /app
+COPY . .
+RUN go build -o main cmd/tasktracker/main.go
 
-ENV GOPATH=/
-COPY ./ ./
+# Run stage
+FROM alpine:3.16
+WORKDIR /app
+COPY --from=builder /app/main .
+COPY configs/* ./configs/
 
-RUN go build -o main .
-CMD ["/main"]
+COPY migration .migration
 
+EXPOSE 8080
 
-
+#ENTRYPOINT ["tail", "-f", "/dev/null"]
+CMD [ "/app/main" ]

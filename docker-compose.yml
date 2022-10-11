@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  ToDoList:
+    image: evgeniyshergunov/task-manager:v0.1
+    container_name: task_manager_backend
+    ports:
+      - "8080:8080"
+    environment:
+      DB_PASSWORD: admin
+      DB_USER: postgres
+      DB_PORT: 5432
+      DB_HOST: postgresql
+      DB_NAME: task_manager
+    networks:
+      - task_manager_network
+    restart: always
+  postgresql:
+    image: postgres:14.5
+    container_name: task_manager_database
+    environment:
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: task_manager
+      PGDATA: /var/lib/postgresql/data
+    networks:
+      - task_manager_network
+    volumes:
+      - task_manager_volume
+    restart: always
+volumes:
+  task_manager_volume:
+networks:
+  task_manager_network:
+
+
+
