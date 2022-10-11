@@ -13,10 +13,16 @@ import (
 )
 
 const (
-	salt       = "qwertyuiop" //TODO вынести во внешние свойства и как сделать в докере?
+	salt       = "qwertyuiop" //
 	signingKey = "asdfghjkl"  //
 )
 
+type TokenClaims struct {
+	jwt.StandardClaims
+	UserId int `json:"userId"`
+}
+
+// регистрация пользователя с хешированием пароля
 func (uh *userHandler) SignUp(c echo.Context) error {
 	var user *models.User
 
@@ -35,11 +41,9 @@ func (uh *userHandler) SignUp(c echo.Context) error {
 	return c.JSON(http.StatusCreated, "user create successfully")
 }
 
-type TokenClaims struct {
-	jwt.StandardClaims
-	UserId int `json:"userId"`
-}
-
+// SignIn аутентификация пользователя по Header запроса
+// функция возвращает токен, который потом можно использовать вручную добавив Header c заголовком Authorization
+// при наличии такого заголовка запрос GetTaskById выдаст нужный результат
 func (uh *userHandler) SignIn(c echo.Context) error {
 	var signUser models.User
 
@@ -51,7 +55,7 @@ func (uh *userHandler) SignIn(c echo.Context) error {
 	user, err := uh.repository.GetUser(c.Request().Context(), signUser.Name, uh.generatePasswordHash(signUser.Password))
 
 	if err != nil {
-		return c.JSON(http.StatusUnauthorized, err.Error()) //TODO найти код ошибки
+		return c.JSON(http.StatusUnauthorized, err.Error()) //
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &TokenClaims{

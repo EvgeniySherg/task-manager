@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	authorizationHeader = "Autorization"
+	authorizationHeader = "Authorization"
 	userId              = "userId"
 )
 

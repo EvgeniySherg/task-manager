@@ -14,22 +14,11 @@ type Task struct {
 	OwnerID     int    `json:"owner_id"`
 }
 
-type User struct {
-	Id       int    `json:"id"`
-	Name     string `json:"name"`
-	Password string `json:"password"`
-}
-
 type TaskRepository interface {
-	GetById(ctx context.Context, id int) (*Task, error)
-	GetAllTask(ctx context.Context, userId int) ([]*Task, error)
-	GetTaskFilterByDate(ctx context.Context, date string) ([]*Task, error)
+	GetById(ctx context.Context, task *Task) (*Task, error)
+	GetAllTask(ctx context.Context, task *Task) ([]*Task, error)
+	GetTaskFilterByDate(ctx context.Context, task *Task) ([]*Task, error)
 	CreateTask(ctx context.Context, task *Task) error
 	UpdateTask(ctx context.Context, task *Task) error
-	DeleteTask(ctx context.Context, id int) error
-}
-
-type UserRepository interface {
-	GetUser(ctx context.Context, username, pass string) (*User, error)
-	CreateUser(c context.Context, user *User) error
+	DeleteTask(ctx context.Context, task *Task) error
 }

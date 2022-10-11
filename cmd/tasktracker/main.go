@@ -20,20 +20,23 @@ func initHandlers(app *echo.Echo, db *sql.DB) {
 	userRep := repository.NewUserRepository(db)
 	userHandl := handlers.NewUserHandler(userRep)
 
-	app.POST("/auth/sign-up", userHandl.SignUp)
-	app.POST("/auth/sign-in", userHandl.SignIn)
-
 	taskRep := repository.NewRepository(db)
 	taskHandl := handlers.NewTaskHandler(taskRep)
 
-	app.GET("/task/:id", taskHandl.GetTaskById, userHandl.UserIdentity) //TODO допилить рест
-	app.GET("/tasks/:date", taskHandl.GetTasksFilterByDate)
-	app.GET("/tasksByUser/:id", taskHandl.GetAllTasksByUserId)
+	//middleware версия запроса для получения конкретной таски. Попытка сделать утентификацию по JWT токену
+	app.POST("/auth/sign-up", userHandl.SignUp) // регистрация с присвоением JWT токена
+	app.POST("/auth/sign-in", userHandl.SignIn)
+	app.GET("/taskJWT", taskHandl.GetTaskById, userHandl.UserIdentity)
+
+	app.GET("/taskById", taskHandl.GetTaskById)
+	app.GET("/tasksByDate", taskHandl.GetTasksFilterByDate)
+	app.GET("/tasksByUser", taskHandl.GetAllTasksByUserId)
 	app.POST("/taskCreate", taskHandl.CreateTask)
 	app.PUT("/taskUpdate", taskHandl.UpdateTask)
-	app.DELETE("/taskDelete/:id", taskHandl.DeleteTask)
+	app.DELETE("/taskDelete", taskHandl.DeleteTask)
 
-	app.GET("/task/:id", taskHandl.GetTaskById, userHandl.UserIdentity)
+	app.POST("/userCreate", userHandl.RegistrationNewUser)
+
 }
 
 func main() {

@@ -36,7 +36,7 @@ func (ud *userDatabase) CreateUser(ctx context.Context, user *models.User) error
 	case err != nil:
 		return fmt.Errorf("create user err -> %v", err)
 	default:
-		logrus.Printf("user with id - %v  created\n", createUser.Name)
+		logrus.Printf("user with id - %v  created\n", createUser.Id)
 	}
 	return nil
 }

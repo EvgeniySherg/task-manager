@@ -2,10 +2,7 @@ package config
 
 import (
 	"ToDoList/internal/postgres"
-	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
-	"log"
-	"os"
 	"time"
 )
 
@@ -23,9 +20,9 @@ func InitConfigFile() error {
 }
 
 func InitConfig() *Config {
-	if err := godotenv.Load(); err != nil {
-		log.Fatalf("cannot db pass from env file, err -> %v", err.Error())
-	}
+	//if err := godotenv.Load(); err != nil {
+	//	logrus.Fatal(err)
+	//}
 	cfg := &Config{
 		Port:         viper.GetString("port"),
 		ReadTimeout:  time.Second * 10,
@@ -34,7 +31,7 @@ func InitConfig() *Config {
 			Host:         viper.GetString("db.host"),
 			Port:         viper.GetString("db.port"),
 			User:         viper.GetString("db.user"),
-			Password:     os.Getenv("DB_PASSWORD"),
+			Password:     viper.GetString("db.password"), //os.Getenv("DB_PASSWORD"),
 			Sslmode:      viper.GetString("db.sslmode"),
 			DatabaseName: viper.GetString("db.databaseName"),
 		},

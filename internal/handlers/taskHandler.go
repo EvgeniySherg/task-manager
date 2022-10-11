@@ -3,40 +3,39 @@ package handlers
 import (
 	"ToDoList/internal/models"
 	"encoding/json"
-	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"net/http"
-	"strconv"
 )
 
 func (th *taskHandler) GetTaskById(c echo.Context) error {
-	get := c.Get(userId)
-	fmt.Println(get)
-	ID, err := strconv.Atoi(c.Param("id"))
+	var task models.Task
+
+	err := json.NewDecoder(c.Request().Body).Decode(&task)
 	if err != nil {
-		logrus.Printf("cannot strconv.Atoi: %v", err)
-		return echo.NewHTTPError(http.StatusBadRequest, "incorrect ID num for get task")
+		logrus.Println("entered incorrect data for get task")
+		return c.String(http.StatusBadRequest, "incorrect task data")
 	}
 
-	task, err := th.repository.GetById(c.Request().Context(), ID)
+	newTask, err := th.repository.GetById(c.Request().Context(), &task)
 	if err != nil {
 		logrus.Printf("Get task by ID error: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest, "database error, incorrect id")
 	}
 
-	return c.JSON(http.StatusOK, json.NewEncoder(c.Response()).Encode(task))
+	return c.JSON(http.StatusOK, json.NewEncoder(c.Response()).Encode(newTask))
 }
 
 func (th *taskHandler) GetAllTasksByUserId(c echo.Context) error {
-	userID, err := strconv.Atoi(c.Param("id"))
+	var task models.Task
 
+	err := json.NewDecoder(c.Request().Body).Decode(&task)
 	if err != nil {
-		logrus.Printf("cannot strconv.Atoi: %v", err)
-		return echo.NewHTTPError(http.StatusBadRequest, "incorrect user ID num, for get tasks")
+		logrus.Println("entered incorrect data for get task")
+		return c.String(http.StatusBadRequest, "incorrect task data")
 	}
 
-	tasks, err := th.repository.GetAllTask(c.Request().Context(), userID)
+	tasks, err := th.repository.GetAllTask(c.Request().Context(), &task)
 	if err != nil {
 		logrus.Printf("Get tasks by user ID error: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest, "database error, incorrect user id")
@@ -46,9 +45,15 @@ func (th *taskHandler) GetAllTasksByUserId(c echo.Context) error {
 }
 
 func (th *taskHandler) GetTasksFilterByDate(c echo.Context) error {
-	date := c.Param("date")
+	var task models.Task
 
-	tasks, err := th.repository.GetTaskFilterByDate(c.Request().Context(), date)
+	err := json.NewDecoder(c.Request().Body).Decode(&task)
+	if err != nil {
+		logrus.Println("entered incorrect data for get task")
+		return c.String(http.StatusBadRequest, "incorrect task data")
+	}
+
+	tasks, err := th.repository.GetTaskFilterByDate(c.Request().Context(), &task)
 	if err != nil {
 		logrus.Printf("Get tasks filtered by date error: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest, "database error, incorrect date information")
@@ -69,7 +74,7 @@ func (th *taskHandler) CreateTask(c echo.Context) error {
 
 	err = th.repository.CreateTask(c.Request().Context(), &newTask)
 	if err != nil {
-		logrus.Printf("error while create new task %v", err)
+		logrus.Printf("error while create new task, %v", err)
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
@@ -91,19 +96,21 @@ func (th *taskHandler) UpdateTask(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	return c.JSON(http.StatusCreated, "task update successfully")
+	return c.JSON(http.StatusOK, "task update successfully")
 }
 
 func (th *taskHandler) DeleteTask(c echo.Context) error {
-	deleteID, err := strconv.Atoi(c.Param("id"))
+	var task models.Task
+
+	err := json.NewDecoder(c.Request().Body).Decode(&task)
 	if err != nil {
-		logrus.Printf("cannot strconv.Atoi: %v", err)
-		return echo.NewHTTPError(http.StatusBadRequest, "incorrect ID num for delete task")
+		logrus.Println("entered incorrect data for delete task")
+		return c.String(http.StatusBadRequest, "incorrect task data")
 	}
 
-	err = th.repository.DeleteTask(c.Request().Context(), deleteID)
+	err = th.repository.DeleteTask(c.Request().Context(), &task)
 	if err != nil {
-		logrus.Printf("delete task error: %v", err)
+		logrus.Printf("error while delete task: %v", err)
 		return echo.NewHTTPError(http.StatusBadRequest, "database error, incorrect id")
 	}
 
