@@ -21,8 +21,8 @@ func InitConfigFile() error {
 }
 
 func InitConfig() *Config {
-	//if err := godotenv.Load(); err != nil {
-	//	logrus.Fatal(err)
+	//if err := godotenv.Load(); err != nil {    // <---- для использования в докер образе пришлось закоментить
+	//	logrus.Fatal(err)						// <--- расскоментить для запуска из IDE
 	//}
 	cfg := &Config{
 		Port:         viper.GetString("port"),
